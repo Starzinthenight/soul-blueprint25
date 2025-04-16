@@ -5,16 +5,16 @@ from blueprint_utils import get_astrology_data, get_blueprint_keys
 
 app = FastAPI()
 
-# ✅ CORS middleware to allow your frontend domain
+# ✅ CORS middleware to allow only your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.soulaligned.life"],  # Only allow your live frontend
+    allow_origins=["https://www.soulaligned.life"],  # Your exact frontend domain
     allow_credentials=True,
-    allow_methods=["*"],  # All methods are fine
-    allow_headers=["*"],  # All headers are fine
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# ✅ Input model matching your frontend
+# ✅ Data model matching your frontend
 class UserData(BaseModel):
     name: str
     email: str
@@ -24,7 +24,7 @@ class UserData(BaseModel):
     latitude: float
     longitude: float
 
-# ✅ POST endpoint that generates the soul blueprint
+# ✅ Blueprint generation endpoint
 @app.post("/soul-blueprint")
 async def generate_blueprint(user: UserData):
     astro_data = get_astrology_data(
@@ -54,7 +54,12 @@ async def generate_blueprint(user: UserData):
         "unlocked_modules": blueprint.get("Unlocked Modules", [])
     }
 
-# ✅ Optional root route to verify backend is live
+# ✅ Root route to check if API is live
 @app.get("/")
 def read_root():
     return {"message": "Soul Blueprint API is running!"}
+
+# ✅ Version check to verify correct code is deployed
+@app.get("/version-check")
+def version_check():
+    return {"version": "1.0.3", "message": "CORS-enabled backend is live"}
