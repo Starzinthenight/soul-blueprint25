@@ -7,7 +7,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict to soulaligned.life in prod
+    allow_origins=["https://www.soulaligned.life"],  # ← YOUR frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
