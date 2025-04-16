@@ -5,29 +5,28 @@ from blueprint_utils import get_astrology_data, get_blueprint_keys
 
 app = FastAPI()
 
-# CORS: allow frontend domain
+# ✅ CORS middleware to allow your frontend domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.soulaligned.life"],  # ← only allow your live site
+    allow_origins=["https://www.soulaligned.life"],  # Only allow your live frontend
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # All methods are fine
+    allow_headers=["*"],  # All headers are fine
 )
 
-# Pydantic data model
+# ✅ Input model matching your frontend
 class UserData(BaseModel):
     name: str
     email: str
-    birthdate: str  # format: YYYY-MM-DD
-    birthtime: str  # format: HH:MM
+    birthdate: str      # Format: YYYY-MM-DD
+    birthtime: str      # Format: HH:MM
     birthplace: str
     latitude: float
     longitude: float
 
-# POST endpoint
+# ✅ POST endpoint that generates the soul blueprint
 @app.post("/soul-blueprint")
 async def generate_blueprint(user: UserData):
-    # Step 1: Get raw astrology & numerology data
     astro_data = get_astrology_data(
         name=user.name,
         birthdate=user.birthdate,
@@ -40,14 +39,12 @@ async def generate_blueprint(user: UserData):
     if "error" in astro_data:
         return {"status": "error", "message": astro_data["error"]}
 
-    # Step 2: Get blueprint keys based on your branding
     blueprint = get_blueprint_keys(
         astro_data=astro_data,
         name=user.name,
         birthdate=user.birthdate
     )
 
-    # Step 3: Return final response to frontend
     return {
         "status": "success",
         "name": user.name,
@@ -57,7 +54,7 @@ async def generate_blueprint(user: UserData):
         "unlocked_modules": blueprint.get("Unlocked Modules", [])
     }
 
-# Optional root route to confirm service is alive
+# ✅ Optional root route to verify backend is live
 @app.get("/")
 def read_root():
     return {"message": "Soul Blueprint API is running!"}
