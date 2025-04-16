@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-dotenv
+email-validator
+jinja2
+reportlab
+pytz
+skyfield
+timezonefinder
+geopy
+PyPDF2
+PyEphem
+ephem==4.2
+pydantic
+
