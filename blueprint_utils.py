@@ -1,26 +1,28 @@
 import ephem
 from datetime import datetime
-# numerology functions are defined below in this file
-from human_design_utils import get_human_design_type
+from numerology import calculate_life_path, calculate_destiny_number
+from hd_utils import get_human_design_type
 
-def get_astrology_data(name: str, birthdate: str, birthtime: str, birthlocation: str):
+
+def get_astrology_data(name: str, birthdate: str, birthtime: str, birthlocation: str,
+                       latitude: float, longitude: float):
     try:
-        # Parse date and time
+        # Convert birth datetime
         birth_dt = datetime.strptime(f"{birthdate} {birthtime}", "%Y-%m-%d %H:%M")
-        observer = ephem.Observer()
 
-        # Geocode manually for now (Replace with geocoder API or hardcoded input)
-        # Example: London
-        observer.lat, observer.lon = '51.5074', '-0.1278'
+        # Setup ephem observer
+        observer = ephem.Observer()
+        observer.lat = str(latitude)
+        observer.lon = str(longitude)
         observer.date = birth_dt
 
-        # Get astro objects
+        # Compute celestial body positions
         sun = ephem.Sun(observer)
         moon = ephem.Moon(observer)
         mercury = ephem.Mercury(observer)
         mars = ephem.Mars(observer)
         neptune = ephem.Neptune(observer)
-        ascendant = observer.radec_of(0, 0)[0]  # Simplified ascendant stand-in
+        ascendant = observer.radec_of(0, 0)[0]  # Simplified ascendant approximation
 
         return {
             "sun": sun.ra,
@@ -34,21 +36,39 @@ def get_astrology_data(name: str, birthdate: str, birthtime: str, birthlocation:
     except Exception as e:
         return {"error": f"Astrology calculation failed: {str(e)}"}
 
+
 def get_blueprint_keys(astro_data, name, birthdate):
-    # Abstract logic to assign your own signature descriptions
-    # Astro values are reduced to signs/constellations in your brand system
+    # Abstract brand-aligned output: no zodiac names, just signature placeholders
     keys = {}
 
-    # Placeholder brand-key mappings
-    keys['Rooted Foundation'] = f"Signature for Mars: {astro_data.get('mars')}"
-    keys['Heart of Connection'] = f"Signature for Moon: {astro_data.get('moon')}"
-    keys['Self Expression'] = f"Signature for Sun: {astro_data.get('sun')}"
-    keys['Mental Mastery'] = f"Signature for Mercury: {astro_data.get('mercury')}"
-    keys['Awakened Self'] = f"Signature for Ascendant: {astro_data.get('ascendant')} + Neptune: {astro_data.get('neptune')}"
+    # Brand-aligned module interpretations (based on your Star Steps)
+    keys['Root – Security'] = f"Signature match: Mars alignment → {astro_data.get('mars')}"
+    keys['Heart – Connection'] = f"Signature match: Moon alignment → {astro_data.get('moon')}"
+    keys['Sacral – Expression'] = f"Signature match: Sun alignment → {astro_data.get('sun')}"
+    keys['Crown – Mental Mastery'] = f"Signature match: Mercury alignment → {astro_data.get('mercury')}"
+    keys['Soul Star – Self-Awakening'] = f"Signature match: Ascendant + Neptune → {astro_data.get('ascendant')} + {astro_data.get('neptune')}"
 
-    # Add Numerology
+    # Numerology
     keys['Life Path Number'] = calculate_life_path(birthdate)
     keys['Destiny Number'] = calculate_destiny_number(name)
-    
-    return keys
 
+    # Human Design (optional, fallback-safe)
+    try:
+        hd_type = get_human_design_type(birthdate, birthtime=None, name=name)
+        keys['Human Design Type'] = hd_type
+    except Exception:
+        keys['Human Design Type'] = "Unavailable"
+
+    # Summary logic — can be custom or stitched from the signatures
+    keys['Soul Summary'] = f"Your unique design is a fusion of cosmic alignments and archetypal energies aligned with your Soul Blueprint."
+
+    # Unlocked Modules (used in frontend color display)
+    keys['Unlocked Modules'] = [
+        "Root – Security",
+        "Heart – Connection",
+        "Sacral – Expression",
+        "Crown – Mental Mastery",
+        "Soul Star – Self-Awakening"
+    ]
+
+    return keys
