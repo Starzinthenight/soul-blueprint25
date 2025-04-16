@@ -24,9 +24,11 @@ class UserData(BaseModel):
     latitude: float
     longitude: float
 
-# ✅ Blueprint generation endpoint
+# ✅ POST endpoint to generate soul blueprint, with debug logging
 @app.post("/soul-blueprint")
 async def generate_blueprint(user: UserData):
+    print("📥 Received data:", user)
+
     astro_data = get_astrology_data(
         name=user.name,
         birthdate=user.birthdate,
